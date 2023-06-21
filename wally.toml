@@ -6,3 +6,5 @@ realm = "shared"
 
 [dependencies]
 knit = "sleitnick/knit@1.5.1"
+roact = "roblox/roact@1.4.4"
+profileservice = "brittonfischer/profileservice@2.1.5"
