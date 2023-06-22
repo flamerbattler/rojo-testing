@@ -1,4 +1,3 @@
---!strict
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -8,7 +7,6 @@ local Promise = require(ReplicatedStorage.Packages._Index:FindFirstChild("sleitn
 local ProfileStore = ProfileService.GetProfileStore(
 	"Player",
 	{
-		Character = "player",
 		Stellas = 10
 	}
 )
@@ -69,7 +67,11 @@ function DataManager.Get(player: Player): any
 	if profile then
 		return profile.Data
 	else
-		return GetData(player):Await()
+		local gotData, data = GetData(player):await()
+
+		if gotData then
+			return data
+		end
 	end
 end
 

@@ -3,6 +3,7 @@
 	<External>nil</External>
 	<Item class="Workspace" referent="10">
 		<Properties>
+			<float name="AirDensity">0.00120000006</float>
 			<bool name="AllowThirdPartySales">false</bool>
 			<BinaryString name="AttributesSerialize"></BinaryString>
 			<token name="AvatarUnificationMode">0</token>
@@ -10,6 +11,7 @@
 			<BinaryString name="CollisionGroupData">AQEABP////8HRGVmYXVsdA==</BinaryString>
 			<Ref name="CurrentCamera">RBXBACB99B24D2E462D9899609D1A474F0F</Ref>
 			<double name="DistributedGameTime">0</double>
+			<bool name="EnableFluidForces">false</bool>
 			<bool name="ExplicitAutoJoints">true</bool>
 			<float name="FallenPartsDestroyHeight">-500</float>
 			<Vector3 name="GlobalWind">
@@ -20,6 +22,7 @@
 			<float name="Gravity">196.199997</float>
 			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 			<token name="HumanoidOnlySetCollisionsOnStateChange">0</token>
+			<token name="IKControlConstraintSupport">0</token>
 			<token name="InterpolationThrottling">0</token>
 			<token name="LevelOfDetail">0</token>
 			<token name="MeshPartHeadsAndAccessories">0</token>
@@ -162,6 +165,7 @@
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
+				<bool name="EnableFluidForces">false</bool>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -261,6 +265,7 @@
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
 				<bool name="Decoration">false</bool>
+				<bool name="EnableFluidForces">false</bool>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -722,26 +727,81 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<BinaryString name="Tags"></BinaryString>
 					<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003950</UniqueId>
 				</Properties>
-				<Item class="LocalScript" referent="RBXEB019608E4D74F4696762D94503C2069">
+				<Item class="LocalScript" referent="RBXC91396E7777E4F2DA7700FAE415E468E">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<bool name="Disabled">false</bool>
 						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">test</string>
+						<string name="Name">KnitClient</string>
 						<token name="RunContext">0</token>
-						<string name="ScriptGuid">{7A02DA63-5978-4E1D-92BF-B3202E290E3C}</string>
+						<string name="ScriptGuid">{14167578-B563-44A0-AAF5-4738E3D38498}</string>
 						<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local Knit = require(ReplicatedStorage.Packages.knit)
-local Print = require(ReplicatedStorage.Shared.Print)
 
-Knit:Start():andThen(function()
-	Print("Knit has started on the", "Client!")
-end):catch(warn)]]></ProtectedString>
+-- Load all services within 'Services':
+Knit.AddControllers(ReplicatedStorage.Shared.Controllers)
+
+Knit.Start():catch(warn)]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
-						<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003957</UniqueId>
+						<UniqueId name="UniqueId">24e8d06daf4c280a04a59357000038f9</UniqueId>
+					</Properties>
+				</Item>
+				<Item class="LocalScript" referent="RBX1BCC801FDF024A7280D3290C2F5848F1">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<bool name="Disabled">false</bool>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">StellaClient</string>
+						<token name="RunContext">0</token>
+						<string name="ScriptGuid">{CBAE138A-77FC-4AF0-9B38-4C6520DA144B}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Knit = require(ReplicatedStorage.Packages.knit)
+local Roact = require(ReplicatedStorage.Packages.roact)
+
+local StellaService = nil
+
+Knit.OnStart():andThen(function()
+	StellaService = Knit.GetService("StellaService")
+end):catch(warn)
+
+local PlayerGui = Players.LocalPlayer.PlayerGui
+local Stellas = Roact.Component:extend("Stellas")
+
+function Stellas:init()
+	self:setState({
+		stellas = 0
+	})
+end
+
+function Stellas:render()
+	return Roact.createElement("ScreenGui", {}, {
+		Stellas = Roact.createElement("TextLabel", {
+			Size = UDim2.new(0.1, 0, 0.1, 0),
+			Position = UDim2.new(0.4525, 0, 0.85, 0),
+			BackgroundColor = BrickColor.new("Tr. Blue"),
+			Text = self.state.stellas,
+			TextScaled = true
+		})
+	})
+end
+
+function Stellas:didMount()
+	StellaService.Stellas:Observe(function(currentStellas: number)
+		self:setState(function(state)
+			return {stellas = currentStellas}
+		end)
+	end)
+end
+
+Roact.mount(Roact.createElement(Stellas), PlayerGui)]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">24e8d06daf4c280a04a59357000038fb</UniqueId>
 					</Properties>
 				</Item>
 			</Item>
@@ -820,16 +880,6 @@ end):catch(warn)]]></ProtectedString>
 			<int64 name="SourceAssetId">-1</int64>
 			<BinaryString name="Tags"></BinaryString>
 			<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00000320</UniqueId>
-		</Properties>
-	</Item>
-	<Item class="Geometry" referent="RBXC33A46AEEBA34C768D45D4006FE5649F">
-		<Properties>
-			<BinaryString name="AttributesSerialize"></BinaryString>
-			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-			<string name="Name">Geometry</string>
-			<int64 name="SourceAssetId">-1</int64>
-			<BinaryString name="Tags"></BinaryString>
-			<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00000322</UniqueId>
 		</Properties>
 	</Item>
 	<Item class="InsertService" referent="RBX97F329E221FE4EE1ABD2CB96718BB274">
@@ -976,28 +1026,6 @@ end):catch(warn)]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003951</UniqueId>
 			</Properties>
-			<Item class="Script" referent="RBXDB7900A5EFAD4C87A08B3C0FADB35398">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<bool name="Disabled">false</bool>
-					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">test</string>
-					<token name="RunContext">0</token>
-					<string name="ScriptGuid">{A819EB4C-21B1-4C23-916B-171E9E3864E8}</string>
-					<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local Knit = require(ReplicatedStorage.Packages.knit)
-local Print = require(ReplicatedStorage.Shared.Print)
-
-Knit:Start():andThen(function()
-	Print("Knit has started on the", "Server!")
-end):catch(warn)]]></ProtectedString>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003952</UniqueId>
-				</Properties>
-			</Item>
 			<Item class="ModuleScript" referent="RBXD4BEDDD83DEC459C9AF72C34184EBBAA">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
@@ -1005,8 +1033,7 @@ end):catch(warn)]]></ProtectedString>
 					<Content name="LinkedSource"><null></null></Content>
 					<string name="Name">datamanager</string>
 					<string name="ScriptGuid">{3052228F-B809-49A6-B27B-0D219DF0B5E4}</string>
-					<ProtectedString name="Source"><![CDATA[--!strict
-local Players = game:GetService("Players")
+					<ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ProfileService = require(ReplicatedStorage.Packages.profileservice)
@@ -1015,7 +1042,6 @@ local Promise = require(ReplicatedStorage.Packages._Index:FindFirstChild("sleitn
 local ProfileStore = ProfileService.GetProfileStore(
 	"Player",
 	{
-		Character = "player",
 		Stellas = 10
 	}
 )
@@ -1076,7 +1102,11 @@ function DataManager.Get(player: Player): any
 	if profile then
 		return profile.Data
 	else
-		return GetData(player):Await()
+		local gotData, data = GetData(player):await()
+
+		if gotData then
+			return data
+		end
 	end
 end
 
@@ -1093,6 +1123,86 @@ return DataManager]]></ProtectedString>
 					<BinaryString name="Tags"></BinaryString>
 					<UniqueId name="UniqueId">3fe40159fa80c37904a4a4b8000038a8</UniqueId>
 				</Properties>
+			</Item>
+			<Item class="Script" referent="RBX5DF2DCC046C84571A11D0C1E349F5E37">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="Disabled">false</bool>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">KnitServer</string>
+					<token name="RunContext">0</token>
+					<string name="ScriptGuid">{6F8008AD-6762-424C-9E41-FEB8699950B5}</string>
+					<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Knit = require(ReplicatedStorage.Packages.knit)
+
+-- Load all services within 'Services':
+Knit.AddServices(script.Parent.Services)
+
+Knit.Start():catch(warn)]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">24e8d06daf4c280a04a59357000038f7</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="Folder" referent="RBXC0A0E97A490A4D339728963474AD0161">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Services</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">24e8d06daf4c280a04a59357000038ff</UniqueId>
+				</Properties>
+				<Item class="ModuleScript" referent="RBX826D9B0EC3DE46ECA29EA3AB5BFEE82B">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">StellaService</string>
+						<string name="ScriptGuid">{587E2C17-4D09-4D78-891F-57D7E0DC3F57}</string>
+						<ProtectedString name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
+
+local Knit = require(ReplicatedStorage.Packages.knit)
+local DataManager = require(ServerScriptService.Server.datamanager)
+
+local StellaService = Knit.CreateService({Name = "StellaService", Client = {Stellas = Knit.CreateProperty(0)}})
+
+function StellaService:GetStellas(player: Player): number
+	if self.Client.Stellas:GetFor(player) == DataManager.Get(player).Stellas then
+		return self.Client.Stellas:GetFor(player)
+	else
+		return error("Stellas on client differ from the profileservice.")
+	end
+end
+
+function StellaService:SetStellas(player: Player, stellas: number): () -> ()
+	DataManager.Set(player, "Stellas", stellas)
+	self.Client.Stellas:SetFor(player, stellas)
+end
+
+function StellaService:AddStellas(player: Player, stellasToAdd: number): () -> ()
+	self:SetStellas(player, self:GetStellas(player) + stellasToAdd)
+end
+
+function StellaService:RemoveStellas(player: Player, stellasToRemove: number): () -> ()
+	self:SetStellas(player, math.floor(self:GetStellas(player) - stellasToRemove))
+end
+
+function StellaService:KnitInit()
+	Players.PlayerAdded:Connect(function(player)
+        self.Client.Stellas:SetFor(player, DataManager.Get(player).Stellas)
+    end)
+end
+
+return StellaService]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">24e8d06daf4c280a04a5935700003900</UniqueId>
+					</Properties>
+				</Item>
 			</Item>
 		</Item>
 	</Item>
@@ -22428,32 +22538,29 @@ return ProfileService]]></ProtectedString>
 				<BinaryString name="Tags"></BinaryString>
 				<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003881</UniqueId>
 			</Properties>
-			<Item class="ModuleScript" referent="RBX9A5DCC9925954DBBBAF252EFC7EE5739">
+			<Item class="ModuleScript" referent="RBXFA82CA8E392744C98A16DF308E01A55B">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
 					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">Print</string>
-					<string name="ScriptGuid">{F898368B-8233-4A8A-A5A7-C26E525876E1}</string>
-					<ProtectedString name="Source"><![CDATA[return function (text, source)
-	print(text, source)
-end]]></ProtectedString>
+					<string name="Name">hi</string>
+					<string name="ScriptGuid">{96B82492-E106-4984-9459-10FFA78C5E6E}</string>
+					<ProtectedString name="Source"><![CDATA[local hi
+
+return hi]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">6bd72b51ba0d879e04a342ff00003959</UniqueId>
+					<UniqueId name="UniqueId">24e8d06daf4c280a04a593570000398b</UniqueId>
 				</Properties>
 			</Item>
-			<Item class="ModuleScript" referent="RBX94E890D7A5B24EA8B4B17E404DB1B471">
+			<Item class="Folder" referent="RBX09CCA82D4E3441919FED218C8B82FF4C">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
-					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">MoneyService</string>
-					<string name="ScriptGuid">{9E88F0FA-E6CF-4151-9919-03558BFAADB3}</string>
-					<ProtectedString name="Source"></ProtectedString>
+					<string name="Name">Controllers</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
-					<UniqueId name="UniqueId">3fe40159fa80c37904a4a4b8000038a6</UniqueId>
+					<UniqueId name="UniqueId">24e8d06daf4c280a04a593570000398d</UniqueId>
 				</Properties>
 			</Item>
 		</Item>
