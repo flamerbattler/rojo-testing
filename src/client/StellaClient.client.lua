@@ -4,12 +4,6 @@ local Players = game:GetService("Players")
 local Knit = require(ReplicatedStorage.Packages.knit)
 local Roact = require(ReplicatedStorage.Packages.roact)
 
-local StellaService = nil
-
-Knit.OnStart():andThen(function()
-	StellaService = Knit.GetService("StellaService")
-end):catch(warn)
-
 local PlayerGui = Players.LocalPlayer.PlayerGui
 local Stellas = Roact.Component:extend("Stellas")
 
@@ -32,11 +26,13 @@ function Stellas:render()
 end
 
 function Stellas:didMount()
-	StellaService.Stellas:Observe(function(currentStellas: number)
-		self:setState(function(state)
-			return {stellas = currentStellas}
+	Knit.OnStart():andThen(function()
+		Knit.GetService("StellaService").Stellas:Observe(function(currentStellas: number)
+			self:setState(function(state)
+				return {stellas = currentStellas}
+			end)
 		end)
-	end)
+	end):catch(warn)
 end
 
 Roact.mount(Roact.createElement(Stellas), PlayerGui)
